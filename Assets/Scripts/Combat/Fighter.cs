@@ -4,10 +4,13 @@ using UnityEngine;
 using RPG.Core;
 using RPG.Movement;
 using System;
+using Unity.VisualScripting;
+using RPG.Saving;
+using RPG.Attributes;
 
 namespace RPG.Combat
 {
-    public class Fighter : MonoBehaviour, IAction
+    public class Fighter : MonoBehaviour, IAction, ISaveable
     {             
         [SerializeField] Transform rightHandTransform = null;
         [SerializeField] Transform leftHandTransform = null;
@@ -22,7 +25,10 @@ namespace RPG.Combat
         {
             mover = GetComponent<Mover>();
 
-            EquipWeapon(defaultWeapon);
+            if (currentWeapon == null)
+            {
+                EquipWeapon(defaultWeapon);
+            }
         }        
 
         private void Update() 
@@ -62,8 +68,33 @@ namespace RPG.Combat
         private void Hit()
         {
             if (target == null) return;
-            target.TakeDamage(currentWeapon.GetWeaponDamage());
-        }              
+
+            var handTransform = currentWeapon.GetHandTransform(rightHandTransform, leftHandTransform);
+
+            if (currentWeapon.AttackEffect != null)
+            {
+                Instantiate(currentWeapon.AttackEffect, handTransform.position, handTransform.rotation);
+            }
+
+            if (currentWeapon.HasProjectile())
+            {
+                currentWeapon.LaunchProjectile(rightHandTransform, leftHandTransform, target, gameObject);
+            }
+            else
+            {
+                if (currentWeapon.ImpactEffect != null)
+                {
+                    Instantiate(currentWeapon.ImpactEffect, target.GetAimLocation(), target.transform.rotation);
+                }
+                target.TakeDamage(gameObject, currentWeapon.GetWeaponDamage());
+            }
+        }
+
+        //Shoot is another animation event. We do the same thing so just call Hit
+        private void Shoot()
+        {
+            Hit();
+        }
 
         private bool GetIsInRange()
         {
@@ -75,6 +106,11 @@ namespace RPG.Combat
             currentWeapon = weapon;
             var animator = GetComponent<Animator>();
             currentWeapon.Spawn(rightHandTransform, leftHandTransform, animator);
+        }
+
+        public Health GetTarget()
+        {
+            return target;
         }
 
         public bool CanAttack(GameObject combatTarget)
@@ -96,6 +132,18 @@ namespace RPG.Combat
             ResetAndTriggerAttackEvent("attack", "stopAttack");
             target = null;
             mover.Cancel();
-        }       
+        }
+
+        public object CaptureState()
+        {
+            return currentWeapon.name;
+        }
+
+        public void RestoreState(object state)
+        {
+            var weaponName = (string)state;
+            var weapon = Resources.Load<Weapon>(weaponName);
+            EquipWeapon(weapon);
+        }
     }
 }
