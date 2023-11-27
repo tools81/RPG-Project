@@ -10,14 +10,17 @@ namespace RPG.Attributes
 {
     public class Health : MonoBehaviour, ISaveable
     {
-        [SerializeField] float healthPoints = 100f;
+        float healthPoints = -1f;
 
 
         bool isDead = false;
 
         private void Start() 
         {
-            healthPoints = GetComponent<BaseStats>().GetHealth();
+            if (healthPoints < 0)
+            {
+                healthPoints = GetComponent<BaseStats>().GetStat(Stat.Health);          
+            }
         }
 
         public bool IsDead()
@@ -36,19 +39,11 @@ namespace RPG.Attributes
                 Die();
                 AwardExperience(instigator);
             }
-        }
-
-        private void AwardExperience(GameObject instigator)
-        {
-            var experience = instigator.GetComponent<Experience>();
-            if (experience == null) return;
-
-            experience.GainExperience(GetComponent<BaseStats>().GetExperienceReward());
-        }
+        }        
 
         public float GetPercentage()
         {
-            return Mathf.Round(100 * (healthPoints / GetComponent<BaseStats>().GetHealth()));
+            return Mathf.Round(100 * (healthPoints / GetComponent<BaseStats>().GetStat(Stat.Health)));
         }
 
         public Vector3 GetAimLocation()
@@ -77,6 +72,14 @@ namespace RPG.Attributes
             isDead = true;
             GetComponent<Animator>().SetTrigger("die");
             GetComponent<ActionScheduler>().CancelCurrentAction();
+        }
+
+        private void AwardExperience(GameObject instigator)
+        {
+            var experience = instigator.GetComponent<Experience>();
+            if (experience == null) return;
+
+            experience.GainExperience(GetComponent<BaseStats>().GetStat(Stat.ExperienceReward));
         }
     }
 }
