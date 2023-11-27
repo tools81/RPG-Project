@@ -12,13 +12,13 @@ namespace RPG.SceneManagement
 
         SavingSystem savingSystem;
 
-        private void Start() 
+        private void Start()
         {
             savingSystem = GetComponent<SavingSystem>();
             //yield return savingSystem.LoadLastScene(defaultSaveFileName);
         }
 
-        private void Update() 
+        private void Update()
         {
             if (Input.GetKeyDown(KeyCode.L))
             {

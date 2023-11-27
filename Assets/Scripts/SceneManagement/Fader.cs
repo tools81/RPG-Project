@@ -5,7 +5,7 @@ using UnityEngine;
 namespace RPG.SceneManagement
 {
     public class Fader : MonoBehaviour
-    {       
+    {
         public IEnumerator FadeOut(float time)
         {
             var canvasGroup = GetComponent<CanvasGroup>();
