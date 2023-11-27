@@ -24,7 +24,7 @@ namespace RPG.Combat
                 return;
             }
             var health = fighter.GetTarget();
-            GetComponent<TextMeshProUGUI>().text = $"{health.GetPercentage()}%";
+            GetComponent<TextMeshProUGUI>().text = $"{health.GetCurrentHealthPoints()}/{health.GetMaxHealthPoints()} - {health.GetPercentage()}%";
         }
     }
 }
