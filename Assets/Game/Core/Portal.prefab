@@ -128,3 +128,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneIndexToLoad: -1
   portalSpawnPoint: {fileID: 8847591048110925780}
+  destination: 0
+  fadeDuration: 1
+  fadeWaitDuration: 0.5

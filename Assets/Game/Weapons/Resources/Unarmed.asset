@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dded5535bcbd4b8449010bbda6ea24cc, type: 3}
   m_Name: Unarmed
   m_EditorClassIdentifier: 
-  weaponPrefab: {fileID: 0}
+  equippedPrefab: {fileID: -392861735858921041, guid: 7089fa4dc1e7ca14cbaaf41ffb0573ed, type: 3}
   weaponRange: 2
   weaponDamage: 3
+  weaponPercentageBonus: 0
   timeBetweenAttacks: 0.6
+  isRightHanded: 1
+  projectile: {fileID: 0}
+  <AttackEffect>k__BackingField: {fileID: 0}
+  <ImpactEffect>k__BackingField: {fileID: 0}
   weaponAnimationOverride: {fileID: 0}

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using RPG.Control;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
@@ -40,13 +41,17 @@ namespace RPG.SceneManagement
             DontDestroyOnLoad(gameObject);
 
             var fader = FindObjectOfType<Fader>();
-            yield return fader.FadeOut(fadeDuration);
-
             var wrapper = FindObjectOfType<SavingWrapper>();
+            var playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+
+            playerController.enabled = false;
+            yield return fader.FadeOut(fadeDuration);
             wrapper.Save();
 
             yield return SceneManager.LoadSceneAsync(sceneIndexToLoad);
 
+            var newScenePlayerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            newScenePlayerController.enabled = false;
             wrapper.Load();
             
             Portal destinationPortal = GetDestinationPortal();
@@ -57,6 +62,7 @@ namespace RPG.SceneManagement
             yield return new WaitForSeconds(fadeWaitDuration);
             yield return fader.FadeIn(fadeDuration);
 
+            newScenePlayerController.enabled = true;
             Destroy(gameObject);            
         }
 
