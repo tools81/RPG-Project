@@ -9,10 +9,11 @@ using RPG.Saving;
 using RPG.Attributes;
 using RPG.Stats;
 using GameDevTV.Utils;
+using Newtonsoft.Json.Linq;
 
 namespace RPG.Combat
 {
-    public class Fighter : MonoBehaviour, IAction, ISaveable, IModifierProvider
+    public class Fighter : MonoBehaviour, IAction, IJsonSaveable, IModifierProvider
     {             
         [SerializeField] Transform rightHandTransform = null;
         [SerializeField] Transform leftHandTransform = null;
@@ -51,6 +52,77 @@ namespace RPG.Combat
                 mover.Cancel();
                 AttackBehaviour();
             }
+        }
+
+        public void EquipWeapon(WeaponConfig weapon)
+        {
+            currentWeaponConfig = weapon;
+            currentWeapon.value = AttachWeapon(weapon);
+        }
+
+        private Weapon AttachWeapon(WeaponConfig weapon)
+        {
+            var animator = GetComponent<Animator>();
+            return weapon.Spawn(rightHandTransform, leftHandTransform, animator);
+        }
+
+        public Health GetTarget()
+        {
+            return target;
+        }
+
+        public bool CanAttack(GameObject combatTarget)
+        {
+            if (combatTarget == null) return false;
+            if (!GetComponent<Mover>().CanMoveTo(combatTarget.transform.position) &&
+            !GetIsInRange(combatTarget.transform))
+            {
+                return false;
+            }
+
+            Health targetToTest = combatTarget.GetComponent<Health>();
+            return targetToTest != null && !targetToTest.IsDead();
+        }
+
+        public void Attack(GameObject combatTarget)
+        {
+            GetComponent<ActionScheduler>().StartAction(this);
+            target = combatTarget.GetComponent<Health>();
+        }
+
+        public void Cancel()
+        {
+            ResetAndTriggerAttackEvent("attack", "stopAttack");
+            target = null;
+            mover.Cancel();
+        }
+
+        public IEnumerable<float> GetAdditiveModifiers(Stat stat)
+        {
+            if (stat == Stat.Damage)
+            {
+                yield return currentWeaponConfig.GetWeaponDamage();
+            }
+        }
+
+        public IEnumerable<float> GetPercentageModifiers(Stat stat)
+        {
+            if (stat == Stat.Damage)
+            {
+                yield return currentWeaponConfig.GetPercentageBonus();
+            }
+        }
+
+        public JToken CaptureAsJToken()
+        {
+            return JToken.FromObject(currentWeaponConfig.name);
+        }
+
+        public void RestoreFromJToken(JToken state)
+        {
+            var weaponName = state.ToObject<string>();
+            var weapon = Resources.Load<WeaponConfig>(weaponName);
+            EquipWeapon(weapon);
         }
 
         private void AttackBehaviour()
@@ -116,76 +188,5 @@ namespace RPG.Combat
         {
             return AttachWeapon(defaultWeapon);
         }
-
-        public void EquipWeapon(WeaponConfig weapon)
-        {
-            currentWeaponConfig = weapon;
-            currentWeapon.value = AttachWeapon(weapon);
-        }
-
-        private Weapon AttachWeapon(WeaponConfig weapon)
-        {
-            var animator = GetComponent<Animator>();
-            return weapon.Spawn(rightHandTransform, leftHandTransform, animator);
-        }
-
-        public Health GetTarget()
-        {
-            return target;
-        }
-
-        public bool CanAttack(GameObject combatTarget)
-        {
-            if (combatTarget == null) return false;
-            if (!GetComponent<Mover>().CanMoveTo(combatTarget.transform.position) &&
-            !GetIsInRange(combatTarget.transform)) 
-            {
-                return false;
-            }
-
-            Health targetToTest = combatTarget.GetComponent<Health>();
-            return targetToTest != null && !targetToTest.IsDead();
-        }
-
-        public void Attack(GameObject combatTarget)
-        {            
-            GetComponent<ActionScheduler>().StartAction(this);
-            target = combatTarget.GetComponent<Health>();
-        }
-
-        public void Cancel()
-        {
-            ResetAndTriggerAttackEvent("attack", "stopAttack");
-            target = null;
-            mover.Cancel();
-        }
-
-        public IEnumerable<float> GetAdditiveModifiers(Stat stat)
-        {
-            if (stat == Stat.Damage)
-            {
-                yield return currentWeaponConfig.GetWeaponDamage();
-            }
-        }
-
-        public IEnumerable<float> GetPercentageModifiers(Stat stat)
-        {
-            if (stat == Stat.Damage)
-            {
-                yield return currentWeaponConfig.GetPercentageBonus();
-            }
-        }
-
-        public object CaptureState()
-        {
-            return currentWeaponConfig.name;
-        }
-
-        public void RestoreState(object state)
-        {
-            var weaponName = (string)state;
-            var weapon = Resources.Load<WeaponConfig>(weaponName);
-            EquipWeapon(weapon);
-        }       
     }
 }

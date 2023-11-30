@@ -5,12 +5,13 @@ using GameDevTV.Utils;
 using RPG.Core;
 using RPG.Saving;
 using RPG.Stats;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace RPG.Attributes
 {
-    public class Health : MonoBehaviour, ISaveable
+    public class Health : MonoBehaviour, IJsonSaveable
     {
         [SerializeField] float regeneratePercentage = 70f;
         [SerializeField] UnityEvent<float> takeDamage;
@@ -93,14 +94,14 @@ namespace RPG.Attributes
             return transform.position + Vector3.up * capsule.height / 2;
         }        
 
-        public object CaptureState()
+        public JToken CaptureAsJToken()
         {
-            return healthPoints;
+            return JToken.FromObject(healthPoints.value);
         }
 
-        public void RestoreState(object state)
+        public void RestoreFromJToken(JToken state)
         {
-            healthPoints.value = (float)state;
+            healthPoints.value = state.ToObject<float>();
             if (healthPoints.value < 1) Die();
         }
 
@@ -125,6 +126,6 @@ namespace RPG.Attributes
         {
             float regenHealthPoints = GetComponent<BaseStats>().GetStat(Stat.Health) * (regeneratePercentage / 100);
             healthPoints.value = Mathf.Max(healthPoints.value, regenHealthPoints);
-        }
+        }        
     }
 }

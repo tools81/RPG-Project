@@ -10,11 +10,11 @@ namespace RPG.SceneManagement
     {
         const string defaultSaveFileName = "save";
 
-        SavingSystem savingSystem;
+        JsonSavingSystem savingSystem;
 
-        private void Start()
+        private void Awake()
         {
-            savingSystem = GetComponent<SavingSystem>();
+            savingSystem = GetComponent<JsonSavingSystem>();
             //yield return savingSystem.LoadLastScene(defaultSaveFileName);
         }
 
@@ -48,7 +48,7 @@ namespace RPG.SceneManagement
 
         public void Delete()
         {
-            GetComponent<SavingSystem>().Delete(defaultSaveFileName);
+            GetComponent<JsonSavingSystem>().Delete(defaultSaveFileName);
         }
     }
 }

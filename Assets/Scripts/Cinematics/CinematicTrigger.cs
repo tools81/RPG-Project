@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using RPG.Saving;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine.Playables;
 
 namespace RPG.Cinematics
 {
-    public class CinematicTrigger : MonoBehaviour, ISaveable
+    public class CinematicTrigger : MonoBehaviour, IJsonSaveable
     {
         bool hasTriggered = false;        
 
@@ -20,14 +21,14 @@ namespace RPG.Cinematics
             }
         }
 
-        public object CaptureState()
+        public JToken CaptureAsJToken()
         {
-            return hasTriggered;
+            return JToken.FromObject(hasTriggered);
         }
 
-        public void RestoreState(object state)
+        public void RestoreFromJToken(JToken state)
         {
-            hasTriggered = (bool)state;
+            hasTriggered = state.ToObject<bool>();
         }
     }
 }
