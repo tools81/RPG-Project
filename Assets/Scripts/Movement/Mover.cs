@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using RPG.Attributes;
 using RPG.Core;
 using RPG.Saving;
@@ -9,7 +10,7 @@ using UnityEngine.AI;
 
 namespace RPG.Movement
 {
-    public class Mover : MonoBehaviour, IAction, ISaveable
+    public class Mover : MonoBehaviour, IAction, IJsonSaveable
     {
         [SerializeField] Transform target;
         [SerializeField] float maxSpeed = 6f;
@@ -59,33 +60,19 @@ namespace RPG.Movement
             navMeshAgent.isStopped = true;
         }        
 
-        [Serializable]
-        struct MoverSaveData
+        public JToken CaptureAsJToken()
         {
-            public SerializableVector3 position;
-            public SerializableVector3 rotation;
+            return transform.position.ToToken();
         }
 
-        public object CaptureState()
+        public void RestoreFromJToken(JToken state)
         {
-            var data = new MoverSaveData
-            {
-                position = new SerializableVector3(transform.position),
-                rotation = new SerializableVector3(transform.eulerAngles)
-            };
-            return data;
+            navMeshAgent.enabled = false;
+            transform.position = state.ToVector3();
+            navMeshAgent.enabled = true;
+            GetComponent<ActionScheduler>().CancelCurrentAction();
         }
 
-        public void RestoreState(object state)
-        {
-            var data = (MoverSaveData)state;
-            var nav = GetComponent<NavMeshAgent>();
-
-            nav.enabled = false;
-            transform.position = data.position.ToVector();
-            transform.eulerAngles = data.rotation.ToVector();
-            nav.enabled = true;
-        }
 
         private void UpdateAnimator()
         {
@@ -106,6 +93,6 @@ namespace RPG.Movement
                 totalLength += Vector3.Distance(path.corners[i], path.corners[i - 1]);
             }
             return totalLength;
-        }
+        }        
     }
 }

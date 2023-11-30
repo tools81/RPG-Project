@@ -64,6 +64,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3017659145518104792, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
+      propertyPath: uniqueIdentifier
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214222345249457426, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4532042051847128135, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
       propertyPath: m_Avatar
       value: 
@@ -124,9 +132,6 @@ PrefabInstance:
       addedObject: {fileID: -1831125265302338635}
     - targetCorrespondingSourceObject: {fileID: 8083393000037059296, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4391254690716062249}
-    - targetCorrespondingSourceObject: {fileID: 8083393000037059296, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 8113087501567015990}
   m_SourcePrefab: {fileID: 100100000, guid: 179d7d3718b9abf489df41da0e09380d, type: 3}
 --- !u!1 &3057994722281139247 stripped
@@ -162,6 +167,8 @@ MonoBehaviour:
   - type: 4
     texture: {fileID: 2800000, guid: f8c873f1e53e83f4aabf342d6be1dfc3, type: 3}
     hotspot: {x: 0, y: 0}
+  maxNavMeshProjectionDistance: 1
+  rayCastRadius: 0.5
 --- !u!136 &-1831125265302338635
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -185,19 +192,6 @@ CapsuleCollider:
   m_Height: 2.08
   m_Direction: 1
   m_Center: {x: 0, y: 0.82, z: 0}
---- !u!114 &4391254690716062249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3057994722281139247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ea9374b509b70f4bba37e4a2ca8cf00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uniqueIdentifier: player
 --- !u!114 &8113087501567015990
 MonoBehaviour:
   m_ObjectHideFlags: 0
