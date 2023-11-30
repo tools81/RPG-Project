@@ -19,8 +19,10 @@ namespace RPG.Control
         [SerializeField] float waypointTolerance = 1f;
         [SerializeField] float suspicionPeriod = 8f; 
         [SerializeField] float dwellPeriod = 5f; 
+        [SerializeField] float aggrevatePeriod = 5f;
         [Range(0,1)] 
         [SerializeField] float patrolSpeedFraction = 0.2f;    
+        [SerializeField] float shoutDistance = 5f;
 
         GameObject player;
         Health health;
@@ -30,6 +32,7 @@ namespace RPG.Control
         LazyValue<Vector3> guardPosition;
         float timeSinceLastSawPlayer = Mathf.Infinity;
         float timeSpentDwellingAtWaypoint = Mathf.Infinity;
+        float timeSinceAggrevated = Mathf.Infinity;
         int currentWaypointIndex = 0;
 
         private void Awake() 
@@ -52,7 +55,7 @@ namespace RPG.Control
         {
             if (health.IsDead()) return;
 
-            if (InAttackRange() && fighter.CanAttack(player))
+            if (IsAggrevated() && fighter.CanAttack(player))
             {
                 timeSinceLastSawPlayer = 0;
                 AttackBehaviour();
@@ -73,10 +76,16 @@ namespace RPG.Control
             UpdateTimers();
         }
 
+        public void Aggrevate()
+        {
+            timeSinceAggrevated = 0;
+        }
+
         private void UpdateTimers()
         {
             timeSinceLastSawPlayer += Time.deltaTime;
             timeSpentDwellingAtWaypoint += Time.deltaTime;
+            timeSinceAggrevated += Time.deltaTime;
         }
 
         private void GuardBehaviour()
@@ -95,6 +104,20 @@ namespace RPG.Control
         private void AttackBehaviour()
         {
             fighter.Attack(player);
+            AggrevateNearbyEnemies();
+        }
+
+        private void AggrevateNearbyEnemies()
+        {
+            var hits = Physics.SphereCastAll(transform.position, shoutDistance, Vector3.up, 0);
+
+            foreach (var hit in hits)
+            {
+                var ai = hit.collider.GetComponent<AIController>();
+                if (ai == null) continue;
+
+                ai.Aggrevate();
+            }
         }
 
         private Vector3 GetPosition()
@@ -145,9 +168,10 @@ namespace RPG.Control
             Gizmos.DrawWireSphere(transform.position, chaseDistance);
         }
 
-        private bool InAttackRange()
+        private bool IsAggrevated()
         {
-            return Vector3.Distance(player.transform.position, transform.position) < chaseDistance;
+            return Vector3.Distance(player.transform.position, transform.position) < chaseDistance ||
+            timeSinceAggrevated < aggrevatePeriod;
         }
     }
 }
