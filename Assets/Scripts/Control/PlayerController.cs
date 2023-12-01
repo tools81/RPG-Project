@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using RPG.Attributes;
 using UnityEngine.EventSystems;
 using UnityEngine.AI;
+using Cinemachine;
 
 namespace RPG.Control
 {
@@ -15,7 +16,8 @@ namespace RPG.Control
     {
         [SerializeField] CursorMapping[] cursorMappings = null;
         [SerializeField] float maxNavMeshProjectionDistance = 1f; 
-        [SerializeField] float rayCastRadius = 0.5f;       
+        [SerializeField] float rayCastRadius = 0.5f;   
+        [SerializeField] List<CinemachineVirtualCamera> virtualCameras = new List<CinemachineVirtualCamera>();    
 
         Health health;       
 
@@ -44,6 +46,11 @@ namespace RPG.Control
             if (InteractWithComponent()) return;
             if (InteractWithMovement()) return;
             SetCursor(CursorType.None);
+        }
+
+        public List<CinemachineVirtualCamera> GetVirtualCameras()
+        {
+            return virtualCameras;
         }
 
         private bool InteractWithComponent()
